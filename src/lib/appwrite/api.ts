@@ -193,9 +193,7 @@ const createPost = async (
   }
 };
 
-const getPostById = async (
-  postId: string
-): Promise<Models.Document | unknown | null> => {
+const getPostById = async (postId: string): Promise<Models.Document> => {
   try {
     const post = await database.getDocument(
       appwriteConfig.databaseId,
@@ -210,13 +208,13 @@ const getPostById = async (
     return post;
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to fetch post with given id");
   }
 };
 
 // Get recent posts
 const getRecentPosts = async (): Promise<
-  Models.DocumentList<Models.Document> | unknown | null
+  Models.DocumentList<Models.Document>
 > => {
   try {
     const posts = await database.listDocuments(
@@ -232,7 +230,7 @@ const getRecentPosts = async (): Promise<
     return posts;
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to fetch recent posts");
   }
 };
 

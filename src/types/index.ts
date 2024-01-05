@@ -68,7 +68,7 @@ export type PostCardProps = {
 };
 
 export type PostStatsProps = {
-  post: Models.Document | null;
+  post: Models.Document | undefined;
   userId: string;
 };
 

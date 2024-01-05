@@ -10,6 +10,9 @@ const GridPostList = ({
 }: GridPostListProps) => {
   const { user } = useUserContext();
 
+  console.log(posts, "posts");
+  
+
   return (
     <ul className="grid-container">
       {posts.documents.map((post) => (
@@ -25,7 +28,7 @@ const GridPostList = ({
             {showUser && (
               <div className="flex items-center justify-start gap-2 flex-1">
                 <img
-                  src={post.creator.imageUrl}
+                  src={post?.creator?.imageUrl}
                   alt="Create image"
                   className="w-8 h-8 rounded-full"
                 />
