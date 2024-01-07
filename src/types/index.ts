@@ -1,4 +1,4 @@
-import { Models } from "appwrite";
+import { Models, } from "appwrite";
 
 export type INavLink = {
   imgURL: string;
@@ -73,7 +73,7 @@ export type PostStatsProps = {
 };
 
 export type GridPostListProps = {
-  posts: Models.DocumentList<Models.Document>;
+  posts: Models.Document[];
   showStats?: boolean;
   showUser?: boolean;
 };

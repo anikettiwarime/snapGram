@@ -12,7 +12,7 @@ const GridPostList = ({
 
   return (
     <ul className="grid-container">
-      {posts.documents.map((post) => (
+      {posts.map((post) => (
         <li key={post.$id} className="relative min-w-80 h-80">
           <Link to={`/posts/${post.$id}`} className="grid-post_link">
             <img
