@@ -2,7 +2,10 @@ import { ID, Models, Query } from "appwrite";
 import { appwriteConfig, account, avatars, database, storage } from "./config";
 import { INewPost, INewUser, IUpdatePost } from "@/types";
 
-// User functions
+/*
+  ########## Auth functions start ##########
+*/
+
 const createUserAccount = async (user: INewUser) => {
   try {
     const newAccount = await account.create(
@@ -13,7 +16,7 @@ const createUserAccount = async (user: INewUser) => {
     );
 
     if (!newAccount) {
-      throw Error;
+      throw new Error("Failed to create account");
     }
 
     const avatarUrl = avatars.getInitials(user.name);
@@ -29,7 +32,7 @@ const createUserAccount = async (user: INewUser) => {
     return newUser;
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to create account");
   }
 };
 
@@ -49,13 +52,13 @@ const saveUserToDb = async (user: {
     );
 
     if (!newUser) {
-      throw Error;
+      throw new Error("Failed to save user to database");
     }
 
     return newUser;
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to save user to database");
   }
 };
 
@@ -65,6 +68,7 @@ const signInAccount = async (user: { email: string; password: string }) => {
     return session;
   } catch (error) {
     console.log(error);
+    throw new Error("Failed to sign in");
   }
 };
 
@@ -74,29 +78,17 @@ const signOutAccount = async () => {
     return session;
   } catch (error) {
     console.log(error);
+    throw new Error("Failed to sign out");
   }
 };
 
-const getCurrentUser = async () => {
-  try {
-    const currentAccount = await account.get();
+/*
+  ########## Auth functions end ##########
+*/
 
-    const currentUser = await database.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      [Query.equal("accountId", currentAccount.$id)]
-    );
-
-    if (!currentUser) {
-      throw Error;
-    }
-
-    return currentUser.documents[0];
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
+/*
+  ########## Helper functions Start ##########
+*/
 
 // File helper functions
 const uploadFile = async (file: File): Promise<Models.File | null> => {
@@ -109,7 +101,7 @@ const uploadFile = async (file: File): Promise<Models.File | null> => {
     return uploadedFile;
   } catch (error) {
     console.log(error);
-    return null;
+    throw new Error("Failed to upload file");
   }
 };
 
@@ -126,7 +118,7 @@ const getFilePreview = async (fileId: string): Promise<URL | null> => {
     return fileUrl;
   } catch (error) {
     console.log(error);
-    return null;
+    throw new Error("Failed to get file preview");
   }
 };
 
@@ -136,9 +128,13 @@ const deleteFile = async (fileId: string) => {
     return { status: "ok" };
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to delete file");
   }
 };
+
+/*
+  ########## Helper functions end ##########
+*/
 
 /*
  ########## Post functions start ##########
@@ -153,7 +149,7 @@ const createPost = async (
     const uploadedFile = await uploadFile(post.file[0]);
 
     if (!uploadedFile) {
-      throw Error;
+      throw new Error("Failed to upload file");
     }
 
     // Save post to database
@@ -161,7 +157,7 @@ const createPost = async (
 
     if (!fileUrl) {
       await deleteFile(uploadedFile.$id);
-      throw Error;
+      throw new Error("Failed to get file preview");
     }
 
     // Convert tags into an array
@@ -189,7 +185,7 @@ const createPost = async (
     return newPost;
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to create post");
   }
 };
 
@@ -256,6 +252,7 @@ const likePost = async (
     return likedPost;
   } catch (error) {
     console.log(error);
+    throw new Error("Failed to like post");
   }
 };
 
@@ -282,7 +279,7 @@ const savePost = async (
     return likedPost;
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to save post");
   }
 };
 
@@ -302,7 +299,7 @@ const deleteSavedPost = async (savedRecordId: string) => {
     return { status: "ok" };
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to delete saved post");
   }
 };
 
@@ -354,13 +351,13 @@ const updatePost = async (
 
     if (!updatePost) {
       await deleteFile(post.imageId);
-      throw Error;
+      throw Error("Failed to update post");
     }
 
     return updatePost;
   } catch (error) {
     console.log(error);
-    return error;
+    throw new Error("Failed to update post");
   }
 };
 
@@ -388,36 +385,6 @@ const deletePost = async (postId: string, imageId: string) => {
     return error;
   }
 };
-
-// GetInfinitePosts
-// const getInfinitePosts = async ({
-//   pageParam,
-// }: {
-//   pageParam: number;
-// }): Promise<Models.DocumentList<Models.Document> | null | unknown> => {
-//   const queries = [Query.orderDesc("$updatedAt"), Query.limit(10)];
-
-//   if (pageParam) {
-//     queries.push(Query.cursorAfter(pageParam.toString()));
-//   }
-
-//   try {
-//     const posts = await database.listDocuments(
-//       appwriteConfig.databaseId,
-//       appwriteConfig.postCollectionId,
-//       queries
-//     );
-
-//     if (!posts) {
-//       throw Error;
-//     }
-
-//     return posts;
-//   } catch (error) {
-//     console.log(error);
-//     return error;
-//   }
-// };
 
 // GetInfinitePosts
 const getInfinitePosts = async ({
@@ -475,19 +442,76 @@ const searchPosts = async (
  ########## Post functions end ##########
 */
 
+/*
+ ########## User functions start ##########
+*/
+
+const getCurrentUser = async () => {
+  try {
+    const currentAccount = await account.get();
+
+    const currentUser = await database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("accountId", currentAccount.$id)]
+    );
+
+    if (!currentUser) {
+      throw new Error("Failed to fetch current user");
+    }
+
+    return currentUser.documents[0];
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to fetch current user");
+  }
+};
+
+const getTopCreators = async (limit?: number) => {
+  const queries = [Query.orderDesc("$createdAt")];
+
+  if (limit) {
+    queries.push(Query.limit(limit));
+  }
+
+  try {
+    const topCreators = await database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      queries
+    );
+
+    if (!topCreators) {
+      throw new Error("Failed to fetch top creators");
+    }
+
+    return topCreators;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to fetch top creators");
+  }
+};
+
+/*
+ ########## User functions end ##########
+*/
+
 export {
-  // User functions
+  // Authentication functions
   createUserAccount,
   saveUserToDb,
   signInAccount,
   signOutAccount,
+
+  // User functions
   getCurrentUser,
+  getTopCreators,
 
   // Post functions
-  createPost, //C
-  getPostById, //R
-  updatePost, //U
-  deletePost, //D
+  createPost,
+  getPostById,
+  updatePost,
+  deletePost,
   getRecentPosts,
   getInfinitePosts,
   searchPosts,
