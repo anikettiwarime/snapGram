@@ -86,3 +86,8 @@ export type SearchResultsProps = {
 export type UserCardProps = {
   user: Models.Document;
 };
+
+export type FileUploaderProps = {
+  fieldChange: (FILES: File[]) => void;
+  mediaUrl: string;
+};
