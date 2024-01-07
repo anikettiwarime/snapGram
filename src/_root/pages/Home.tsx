@@ -1,6 +1,10 @@
 import { Loader } from "@/components/shared";
 import PostCard from "@/components/shared/PostCard";
-import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutation";
+import UserCard from "@/components/shared/UserCard";
+import {
+  useGetRecentPosts,
+  useGetTopCreators,
+} from "@/lib/react-query/queriesAndMutation";
 import { Models } from "appwrite";
 
 const Home = () => {
@@ -10,11 +14,22 @@ const Home = () => {
     isError: isPostError,
   } = useGetRecentPosts();
 
-  if (isPostError) {
+  const {
+    data: topCreators,
+    isLoading: isCreatorsLoading,
+    isError: isCreatorError,
+  } = useGetTopCreators(10);
+
+  if (isPostError || isCreatorError) {
     return (
       <div className="flex flex-1">
         <div className="home-container">
-          <p className="body-medium text-light-1">Something bad happened</p>
+          <div className="home-posts">
+            <p className="body-medium text-light-1">Something bad happened</p>
+          </div>
+          <div className="home-creators">
+            <p className="body-medium text-light-1">Something bad happened</p>
+          </div>
         </div>
       </div>
     );
@@ -37,6 +52,20 @@ const Home = () => {
             </ul>
           )}
         </div>
+      </div>
+      <div className="home-creators">
+        <h3 className="h3-bold text-light-1">Top Creators</h3>
+        {isCreatorsLoading && !topCreators ? (
+          <Loader />
+        ) : (
+          <ul className="grid 2xl:grid-cols-2 gap-6">
+            {topCreators?.documents.map((creator) => (
+              <li key={creator?.$id}>
+                <UserCard user={creator} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
