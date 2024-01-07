@@ -3,7 +3,7 @@ import PostCard from "@/components/shared/PostCard";
 import UserCard from "@/components/shared/UserCard";
 import {
   useGetRecentPosts,
-  useGetTopCreators,
+  useGetUsers,
 } from "@/lib/react-query/queriesAndMutation";
 import { Models } from "appwrite";
 
@@ -18,7 +18,7 @@ const Home = () => {
     data: topCreators,
     isLoading: isCreatorsLoading,
     isError: isCreatorError,
-  } = useGetTopCreators(10);
+  } = useGetUsers(10);
 
   if (isPostError || isCreatorError) {
     return (

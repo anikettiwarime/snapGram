@@ -467,7 +467,7 @@ const getCurrentUser = async () => {
   }
 };
 
-const getTopCreators = async (limit?: number) => {
+const getUsers = async (limit?: number) => {
   const queries = [Query.orderDesc("$createdAt")];
 
   if (limit) {
@@ -505,7 +505,7 @@ export {
 
   // User functions
   getCurrentUser,
-  getTopCreators,
+  getUsers,
 
   // Post functions
   createPost,

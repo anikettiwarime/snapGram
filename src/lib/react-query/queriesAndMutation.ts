@@ -13,7 +13,7 @@ import {
   getInfinitePosts,
   getPostById,
   getRecentPosts,
-  getTopCreators,
+  getUsers,
   likePost,
   savePost,
   searchPosts,
@@ -212,9 +212,9 @@ export const useSearchPosts = (searchTerm: string) => {
 };
 
 // Function to get top creators
-export const useGetTopCreators = (limit?: number) => {
+export const useGetUsers = (limit?: number) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_USERS],
-    queryFn: () => getTopCreators(limit),
+    queryFn: () => getUsers(limit),
   });
 };
