@@ -71,7 +71,7 @@ const LeftSidebar = () => {
           })}
         </ul>
       </div>
-      
+
       <Button
         variant="ghost"
         className="shad-button_ghost"
