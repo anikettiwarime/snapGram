@@ -467,6 +467,25 @@ const getCurrentUser = async () => {
   }
 };
 
+const getUserById = async (userId: string) => {
+  try {
+    const user = await database.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId
+    );
+
+    if (!user) {
+      throw new Error("Failed to fetch user");
+    }
+
+    return user;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to fetch user");
+  }
+}
+
 const getUsers = async (limit?: number) => {
   const queries = [Query.orderDesc("$createdAt")];
 
@@ -505,6 +524,7 @@ export {
 
   // User functions
   getCurrentUser,
+  getUserById,
   getUsers,
 
   // Post functions

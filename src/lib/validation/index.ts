@@ -22,6 +22,16 @@ const signUpValidationSchema = z.object({
     .min(8, { message: "Password must be at least 8 characters long" }),
 });
 
+const profileValidationSchema = z.object({
+  file: z.custom<File[]>(),
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  username: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters." }),
+  email: z.string().email(),
+  bio: z.string(),
+});
+
 // Post validation schema
 const postValidationSchema = z.object({
   caption: z
@@ -36,4 +46,9 @@ const postValidationSchema = z.object({
   tags: z.string(),
 });
 
-export { signInValidationSchema, signUpValidationSchema, postValidationSchema };
+export {
+  signInValidationSchema,
+  signUpValidationSchema,
+  postValidationSchema,
+  profileValidationSchema,
+};

@@ -1,29 +1,11 @@
+import React, { useEffect, useState } from "react";
+import { AuthContext } from "./AuthContext";
 import { getCurrentUser } from "@/lib/appwrite/api";
-import { IContextType, IUser } from "@/types";
-import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IUser } from "@/types";
+import { INITIAL_USER } from "@/constants";
 
-const INITIAL_USER = {
-  id: "",
-  name: "",
-  username: "",
-  email: "",
-  imageUrl: "",
-  bio: "",
-};
-
-const INITIAL_STATE = {
-  user: INITIAL_USER,
-  isLoading: false,
-  isAuthenticated: false,
-  setUser: () => {},
-  setIsAuthenticated: () => {},
-  checkAuthUser: async () => false as boolean,
-};
-
-export const AuthContext = createContext<IContextType>(INITIAL_STATE);
-
-const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -57,12 +39,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const cookieFallback = localStorage.getItem("cookieFallback");
-
-    if (cookieFallback === "[]" || cookieFallback === null) {
+    if (
+      cookieFallback === "[]" ||
+      cookieFallback === null ||
+      cookieFallback === undefined
+    ) {
       navigate("/sign-in");
     }
 
     checkAuthUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const value = {
@@ -73,10 +59,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsAuthenticated,
     checkAuthUser,
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <>
+      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    </>
+  );
 };
 
-export default AuthProvider;
-
-export const useUserContext = () => useContext(AuthContext);
+export default AuthContextProvider;
