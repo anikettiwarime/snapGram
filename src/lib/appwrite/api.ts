@@ -1,6 +1,6 @@
 import { ID, Models, Query } from "appwrite";
 import { appwriteConfig, account, avatars, database, storage } from "./config";
-import { INewPost, INewUser, IUpdatePost } from "@/types";
+import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 
 /*
   ########## Auth functions start ##########
@@ -467,7 +467,7 @@ const getCurrentUser = async () => {
   }
 };
 
-const getUserById = async (userId: string) => {
+const getUserById = async (userId: string): Promise<Models.Document> => {
   try {
     const user = await database.getDocument(
       appwriteConfig.databaseId,
@@ -484,7 +484,7 @@ const getUserById = async (userId: string) => {
     console.log(error);
     throw new Error("Failed to fetch user");
   }
-}
+};
 
 const getUsers = async (limit?: number) => {
   const queries = [Query.orderDesc("$createdAt")];
@@ -511,6 +511,58 @@ const getUsers = async (limit?: number) => {
   }
 };
 
+const updateUser = async (user: IUpdateUser) => {
+  const hasFileToUpdate = user.file.length > 0;
+  try {
+    let image = {
+      imageUrl: user.imageUrl,
+      imageId: user.imageId,
+    };
+    if (hasFileToUpdate) {
+      const uploadedFile = await uploadFile(user.file[0]);
+      if (!uploadedFile) throw Error;
+
+      const fileUrl = await getFilePreview(uploadedFile.$id);
+
+      if (!fileUrl) {
+        await deleteFile(uploadedFile.$id);
+        throw Error;
+      }
+
+      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+    }
+
+    const updatedUser = await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      user.userId,
+      {
+        name: user.name,
+        bio: user.bio,
+        imageUrl: image.imageUrl,
+        imageId: image.imageId,
+      }
+    );
+
+    if (!updatedUser) {
+      if (hasFileToUpdate) {
+        await deleteFile(user.imageId);
+      }
+
+      throw Error("Failed to update user");
+    }
+
+    if (user.imageId && hasFileToUpdate) {
+      await deleteFile(user.imageId);
+    }
+
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to update user");
+  }
+};
+
 /*
  ########## User functions end ##########
 */
@@ -526,6 +578,7 @@ export {
   getCurrentUser,
   getUserById,
   getUsers,
+  updateUser,
 
   // Post functions
   createPost,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { AuthContext } from "./AuthContext";
 import { getCurrentUser } from "@/lib/appwrite/api";
 import { useNavigate } from "react-router-dom";
@@ -12,8 +12,9 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   const navigate = useNavigate();
 
-  const checkAuthUser = async () => {
+  const checkAuthUser = useCallback(async () => {
     try {
+      setIsLoading(true);
       const currentAccount = await getCurrentUser();
       if (currentAccount) {
         setUser({
@@ -35,7 +36,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const cookieFallback = localStorage.getItem("cookieFallback");
@@ -46,23 +47,31 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     ) {
       navigate("/sign-in");
     }
-
     checkAuthUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const value = {
-    user,
-    setUser,
-    isLoading,
-    isAuthenticated,
-    setIsAuthenticated,
-    checkAuthUser,
-  };
+  const contextValue = useMemo(
+    () => ({
+      user,
+      setUser,
+      isLoading,
+      isAuthenticated,
+      setIsAuthenticated,
+      checkAuthUser,
+    }),
+    [
+      user,
+      setUser,
+      isLoading,
+      isAuthenticated,
+      setIsAuthenticated,
+      checkAuthUser,
+    ]
+  );
+
   return (
-    <>
-      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-    </>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 

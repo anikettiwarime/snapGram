@@ -41,7 +41,7 @@ const SignInForm = () => {
 
   // Form Submission
   const onSubmit = async (values: z.infer<typeof signInValidationSchema>) => {
-    const session = signInAccount({
+    const session = await signInAccount({
       email: values.email,
       password: values.password,
     });

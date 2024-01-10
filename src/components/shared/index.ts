@@ -5,3 +5,4 @@ export { default as LeftSidebar } from "./LeftSidebar";
 export { default as FileUploader } from "./FileUploader";
 export { default as SearchResults } from "./SearchResults";
 export { default as GridPostList } from "./GridPostList";
+export { default as ProfileUploader } from "./ProfileUploader";
