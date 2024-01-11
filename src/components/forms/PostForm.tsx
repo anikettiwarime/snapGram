@@ -91,7 +91,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
               <FormLabel className="shad-form_label">Caption</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="shadcn"
+                  placeholder="Write a caption..."
                   className="shad-textarea custom-scrollbar"
                   {...field}
                 />
