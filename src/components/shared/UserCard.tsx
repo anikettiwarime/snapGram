@@ -1,8 +1,12 @@
 import { UserCardProps } from "@/types";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import { useUserContext } from "@/context/AuthContext";
 
 const UserCard = ({ user }: UserCardProps) => {
+  const { user: loggedInUser } = useUserContext();
+  const isFollowing = user.followers.includes(loggedInUser.id);
+
   return (
     <Link to={`/profile/${user.$id}`} className="user-card">
       <img
@@ -21,7 +25,7 @@ const UserCard = ({ user }: UserCardProps) => {
       </div>
 
       <Button type="button" size="sm" className="shad-button_primary px-5">
-        Follow
+        {isFollowing ? "Unfollow" : "Follow"}
       </Button>
     </Link>
   );

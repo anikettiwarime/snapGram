@@ -1,6 +1,7 @@
 import { Loader } from "@/components/shared";
 import PostCard from "@/components/shared/PostCard";
 import UserCard from "@/components/shared/UserCard";
+import { useUserContext } from "@/context/AuthContext";
 import { useTitle } from "@/hooks/useTitle";
 import {
   useGetRecentPosts,
@@ -10,7 +11,7 @@ import { Models } from "appwrite";
 
 const Home = () => {
   useTitle("Home");
-
+  const { user } = useUserContext();
   const {
     data: posts,
     isLoading: isPostLoading,
@@ -64,7 +65,7 @@ const Home = () => {
           <ul className="grid 2xl:grid-cols-2 gap-6">
             {topCreators?.documents.map((creator) => (
               <li key={creator?.$id}>
-                <UserCard user={creator} />
+                {user.id !== creator.$id && <UserCard user={creator} />}
               </li>
             ))}
           </ul>

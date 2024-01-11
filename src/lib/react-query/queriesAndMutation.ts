@@ -9,6 +9,7 @@ import {
   createUserAccount,
   deletePost,
   deleteSavedPost,
+  followUser,
   getCurrentUser,
   getInfinitePosts,
   getPostById,
@@ -20,6 +21,7 @@ import {
   searchPosts,
   signInAccount,
   signOutAccount,
+  unfollowUser,
   updatePost,
   updateUser,
 } from "../appwrite/api";
@@ -221,6 +223,7 @@ export const useGetUsers = (limit?: number) => {
   });
 };
 
+// Function to get a user by their ID
 export const useGetUserById = (userId: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_USER_BY_ID, userId],
@@ -229,6 +232,7 @@ export const useGetUserById = (userId: string) => {
   });
 };
 
+// Function to update a user
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -239,6 +243,58 @@ export const useUpdateUser = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
+      });
+    },
+  });
+};
+
+// Function to follow a user
+export const useFollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      selfId,
+      userId,
+      selfFollowingArray,
+      userFollowerArray,
+    }: {
+      selfId: string;
+      userId: string;
+      selfFollowingArray: string[];
+      userFollowerArray: string[];
+    }) => followUser(selfId, userId, selfFollowingArray, userFollowerArray),
+    onSuccess: ({ updatedUser }) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, updatedUser.$id],
+      });
+    },
+  });
+};
+
+// Function to unfollow a user
+export const useUnfollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      selfId,
+      userId,
+      selfFollowingArray,
+      userFollowerArray,
+    }: {
+      selfId: string;
+      userId: string;
+      selfFollowingArray: string[];
+      userFollowerArray: string[];
+    }) => unfollowUser(selfId, userId, selfFollowingArray, userFollowerArray),
+    onSuccess: ({ updatedUser }) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, updatedUser.$id],
       });
     },
   });

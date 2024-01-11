@@ -1,3 +1,4 @@
+import { Models } from "appwrite";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -56,3 +57,10 @@ export const checkIsLiked = (likeList: string[], userId: string) => {
 };
 
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
+
+export function isFollowingUser(
+  currentUser: Models.Document | undefined,
+  loggedInUserId: string | undefined
+): boolean {
+  return currentUser?.followers.includes(loggedInUserId);
+}

@@ -9,10 +9,15 @@ import {
 
 import { Button } from "@/components/ui";
 import { LikedPost } from "@/_root/pages";
-import { useUserContext } from "@/context/AuthContext";
-import { useGetUserById } from "@/lib/react-query/queriesAndMutation";
+import {
+  useGetCurrentUser,
+  useGetUserById,
+  useFollowUser,
+  useUnfollowUser,
+} from "@/lib/react-query/queriesAndMutation";
 import { GridPostList, Loader } from "@/components/shared";
 import { useTitle } from "@/hooks/useTitle";
+import { isFollowingUser } from "@/lib/utils";
 
 interface StabBlockProps {
   value: string | number;
@@ -27,12 +32,18 @@ const StatBlock = ({ value, label }: StabBlockProps) => (
 );
 
 const Profile = () => {
-  useTitle("My Profile");
   const { id } = useParams();
-  const { user } = useUserContext();
   const { pathname } = useLocation();
 
-  const { data: currentUser } = useGetUserById(id || "");
+  const { data: currentUser } = useGetUserById(id as string);
+  const { data: loggedInUser } = useGetCurrentUser();
+  useTitle(currentUser?.name);
+
+  const isFollowing = isFollowingUser(currentUser, loggedInUser?.$id);
+  const { mutateAsync: followUser, isPending: isFollowPending } =
+    useFollowUser();
+  const { mutateAsync: unfollowUser, isPending: isUnFollowPending } =
+    useUnfollowUser();
 
   if (!currentUser)
     return (
@@ -64,8 +75,14 @@ const Profile = () => {
 
             <div className="flex gap-8 mt-10 items-center justify-center xl:justify-start flex-wrap z-20">
               <StatBlock value={currentUser.posts.length} label="Posts" />
-              <StatBlock value={20} label="Followers" />
-              <StatBlock value={20} label="Following" />
+              <StatBlock
+                value={currentUser.followers.length}
+                label="Followers"
+              />
+              <StatBlock
+                value={currentUser.following.length}
+                label="Following"
+              />
             </div>
 
             <p className="small-medium md:base-medium text-center xl:text-left mt-7 max-w-screen-sm">
@@ -74,11 +91,13 @@ const Profile = () => {
           </div>
 
           <div className="flex justify-center gap-4">
-            <div className={`${user.id !== currentUser.$id && "hidden"}`}>
+            <div
+              className={`${loggedInUser?.$id !== currentUser.$id && "hidden"}`}
+            >
               <Link
                 to={`/update-profile/${currentUser.$id}`}
                 className={`h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg ${
-                  user.id !== currentUser.$id && "hidden"
+                  loggedInUser?.$id !== currentUser.$id && "hidden"
                 }`}
               >
                 <img
@@ -92,16 +111,44 @@ const Profile = () => {
                 </p>
               </Link>
             </div>
-            <div className={`${user.id === id && "hidden"}`}>
-              <Button type="button" className="shad-button_primary px-8">
-                Follow
-              </Button>
+            <div className={`${loggedInUser?.$id === id && "hidden"}`}>
+              {isFollowing ? (
+                <Button
+                  type="button"
+                  className="shad-button_primary px-8"
+                  onClick={() => {
+                    unfollowUser({
+                      selfId: loggedInUser?.$id as string,
+                      userId: currentUser.$id,
+                      selfFollowingArray: loggedInUser?.following,
+                      userFollowerArray: currentUser.followers,
+                    });
+                  }}
+                >
+                  {isUnFollowPending ? <Loader /> : "Unfollow"}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="shad-button_primary px-8"
+                  onClick={() => {
+                    followUser({
+                      selfId: loggedInUser?.$id as string,
+                      userId: currentUser.$id,
+                      selfFollowingArray: loggedInUser?.following,
+                      userFollowerArray: currentUser.followers,
+                    });
+                  }}
+                >
+                  {isFollowPending ? <Loader /> : "Follow"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {currentUser.$id === user.id && (
+      {currentUser.$id === loggedInUser?.$id && (
         <div className="flex max-w-5xl w-full">
           <Link
             to={`/profile/${id}`}
@@ -139,7 +186,7 @@ const Profile = () => {
           index
           element={<GridPostList posts={currentUser.posts} showUser={false} />}
         />
-        {currentUser.$id === user.id && (
+        {currentUser.$id === loggedInUser?.$id && (
           <Route path="/liked-posts" element={<LikedPost />} />
         )}
       </Routes>

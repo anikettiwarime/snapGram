@@ -262,7 +262,7 @@ const savePost = async (
   userId: string
 ): Promise<Models.Document | unknown | null> => {
   try {
-    const likedPost = await database.createDocument(
+    const savedPost = await database.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.saveCollectionId,
       ID.unique(),
@@ -272,11 +272,11 @@ const savePost = async (
       }
     );
 
-    if (!likedPost) {
+    if (!savePost) {
       throw Error;
     }
 
-    return likedPost;
+    return savedPost;
   } catch (error) {
     console.log(error);
     throw new Error("Failed to save post");
@@ -563,6 +563,198 @@ const updateUser = async (user: IUpdateUser) => {
   }
 };
 
+// // Follow user
+// const toggleFollowUser = async (
+//   selfId: string,
+//   userId: string,
+//   selfFollowingArray: string[],
+//   userFollowerArray: string[]
+// ) => {
+//   try {
+//     if (selfFollowingArray.includes(userId)) {
+//       // Unfollow user
+//       const updatedSelf = await database.updateDocument(
+//         appwriteConfig.databaseId,
+//         appwriteConfig.userCollectionId,
+//         selfId,
+//         {
+//           following: selfFollowingArray.filter((id) => id !== userId),
+//         }
+//       );
+
+//       if (!updatedSelf) {
+//         throw new Error("Failed to unfollow user");
+//       }
+
+//       const updatedUser = await database.updateDocument(
+//         appwriteConfig.databaseId,
+//         appwriteConfig.userCollectionId,
+//         userId,
+//         {
+//           followers: userFollowerArray.filter((id) => id !== selfId),
+//         }
+//       );
+
+//       if (!updatedUser) {
+//         // Revert changes
+//         await database.updateDocument(
+//           appwriteConfig.databaseId,
+//           appwriteConfig.userCollectionId,
+//           selfId,
+//           {
+//             following: [...selfFollowingArray, userId],
+//           }
+//         );
+//         throw new Error("Failed to unfollow user");
+//       }
+
+//       return { updatedSelf, updatedUser };
+//     } else {
+//       // Follow user
+//       const updatedSelf = await database.updateDocument(
+//         appwriteConfig.databaseId,
+//         appwriteConfig.userCollectionId,
+//         selfId,
+//         {
+//           following: [...selfFollowingArray, userId],
+//         }
+//       );
+
+//       if (!updatedSelf) {
+//         throw new Error("Failed to follow user");
+//       }
+
+//       const updatedUser = await database.updateDocument(
+//         appwriteConfig.databaseId,
+//         appwriteConfig.userCollectionId,
+//         userId,
+//         {
+//           followers: [...userFollowerArray, selfId],
+//         }
+//       );
+
+//       if (!updatedUser) {
+//         // Revert changes
+//         await database.updateDocument(
+//           appwriteConfig.databaseId,
+//           appwriteConfig.userCollectionId,
+//           selfId,
+//           {
+//             following: selfFollowingArray.filter((id) => id !== userId),
+//           }
+//         );
+//         throw new Error("Failed to follow user");
+//       }
+//       return { updatedSelf, updatedUser };
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     throw new Error("Failed to follow user");
+//   }
+// };
+
+const followUser = async (
+  selfId: string,
+  userId: string,
+  selfFollowingArray: string[],
+  userFollowerArray: string[]
+) => {
+  try {
+    const updatedSelf = await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      selfId,
+      {
+        following: [...selfFollowingArray, userId],
+      }
+    );
+
+    if (!updatedSelf) {
+      throw new Error("Failed to follow user");
+    }
+
+    const updatedUser = await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId,
+      {
+        followers: [...userFollowerArray, selfId],
+      }
+    );
+
+    if (!updatedUser) {
+      // Revert changes
+      await database.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        selfId,
+        {
+          following: selfFollowingArray.filter((id) => id !== userId),
+        }
+      );
+      throw new Error("Failed to follow user");
+    }
+
+    return { updatedSelf, updatedUser };
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to follow user");
+  }
+};
+
+const unfollowUser = async (
+  selfId: string,
+  userId: string,
+  selfFollowingArray: string[],
+  userFollowerArray: string[]
+) => {
+  try {
+    const updatedSelf = await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      selfId,
+      {
+        following: selfFollowingArray.filter((id) => id !== userId),
+      }
+    );
+
+    if (!updatedSelf) {
+      throw new Error("Failed to unfollow user");
+    }
+
+    const updatedUser = await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId,
+      {
+        followers: userFollowerArray.filter((id) => id !== selfId),
+      }
+    );
+
+    if (!updatedUser) {
+      // Revert changes
+      await database.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        selfId,
+        {
+          following: [...selfFollowingArray, userId],
+        }
+      );
+      throw new Error("Failed to unfollow user");
+    }
+
+    return { updatedSelf, updatedUser };
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to unfollow user");
+  }
+};
+
+// Usage
+// const followResult: UpdateResult = await followUser(selfId, userId, selfFollowingArray, userFollowerArray);
+// const unfollowResult: UpdateResult = await unfollowUser(selfId, userId, selfFollowingArray, userFollowerArray);
+
 /*
  ########## User functions end ##########
 */
@@ -579,6 +771,8 @@ export {
   getUserById,
   getUsers,
   updateUser,
+  followUser,
+  unfollowUser,
 
   // Post functions
   createPost,
