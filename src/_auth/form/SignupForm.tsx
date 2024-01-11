@@ -25,8 +25,10 @@ import { Loader } from "@/components/shared";
 // Validation
 import { signUpValidationSchema } from "@/lib/validation";
 import { z } from "zod";
+import { useTitle } from "@/hooks/useTitle";
 
 const SignupForm = () => {
+  useTitle("Sign Up");
   // Hooks and Contexts
   const { toast } = useToast();
   const navigate = useNavigate();

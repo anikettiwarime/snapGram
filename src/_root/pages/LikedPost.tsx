@@ -1,7 +1,9 @@
 import { GridPostList, Loader } from "@/components/shared";
+import { useTitle } from "@/hooks/useTitle";
 import { useGetCurrentUser } from "@/lib/react-query/queriesAndMutation";
 
 const LikedPosts = () => {
+  useTitle("Liked Posts");
   const { data: currentUser } = useGetCurrentUser();
 
   if (!currentUser)

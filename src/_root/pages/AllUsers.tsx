@@ -1,7 +1,9 @@
 import UserCard from "@/components/shared/UserCard";
+import { useTitle } from "@/hooks/useTitle";
 import { useGetUsers } from "@/lib/react-query/queriesAndMutation";
 
 const AllUsers = () => {
+  useTitle("All Users");
   const { data: users } = useGetUsers();
   return (
     <div className="common-container">

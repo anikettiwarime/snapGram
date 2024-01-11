@@ -12,6 +12,7 @@ import { LikedPost } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById } from "@/lib/react-query/queriesAndMutation";
 import { GridPostList, Loader } from "@/components/shared";
+import { useTitle } from "@/hooks/useTitle";
 
 interface StabBlockProps {
   value: string | number;
@@ -26,6 +27,7 @@ const StatBlock = ({ value, label }: StabBlockProps) => (
 );
 
 const Profile = () => {
+  useTitle("My Profile");
   const { id } = useParams();
   const { user } = useUserContext();
   const { pathname } = useLocation();

@@ -21,8 +21,10 @@ import {
   useGetUserById,
   useUpdateUser,
 } from "@/lib/react-query/queriesAndMutation";
+import { useTitle } from "@/hooks/useTitle";
 
 const UpdateProfile = () => {
+  useTitle("Edit Profile");
   const { toast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();

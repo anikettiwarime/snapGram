@@ -1,8 +1,10 @@
 import { GridPostList, Loader } from "@/components/shared";
+import { useTitle } from "@/hooks/useTitle";
 import { useGetCurrentUser } from "@/lib/react-query/queriesAndMutation";
 import { Models } from "appwrite";
 
 const Saved = () => {
+  useTitle("Saved Posts");
   const { data: currentUser, isLoading: isUserLoading } = useGetCurrentUser();
   const savedPosts = currentUser?.save.map((savedPost: Models.Document) => ({
     ...savedPost.post,

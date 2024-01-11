@@ -1,6 +1,7 @@
 import { GridPostList, Loader, SearchResults } from "@/components/shared";
 import { Input } from "@/components/ui/input";
 import useDebounce from "@/hooks/useDeboucing";
+import { useTitle } from "@/hooks/useTitle";
 import {
   useGetPosts,
   useSearchPosts,
@@ -9,6 +10,8 @@ import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
 const Explore = () => {
+  useTitle("Explore");
+
   const [searchValue, setsearchValue] = useState("");
   const { ref, inView } = useInView();
 

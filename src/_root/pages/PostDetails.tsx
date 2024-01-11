@@ -2,11 +2,13 @@ import { Loader } from "@/components/shared";
 import PostStats from "@/components/shared/PostStats";
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/context/AuthContext";
+import { useTitle } from "@/hooks/useTitle";
 import { useGetPostById } from "@/lib/react-query/queriesAndMutation";
 import { multiFormatDateString } from "@/lib/utils";
 import { useParams, Link } from "react-router-dom";
 
 const PostDetails = () => {
+  useTitle("Post Details");
   const { id } = useParams();
   const { data: post, isPending: isPostLoading } = useGetPostById(id || "");
   const { user } = useUserContext();

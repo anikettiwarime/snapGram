@@ -3,8 +3,10 @@ import { Loader } from "@/components/shared";
 import { useGetPostById } from "@/lib/react-query/queriesAndMutation";
 import { useParams } from "react-router-dom";
 import { Models } from "appwrite";
+import { useTitle } from "@/hooks/useTitle";
 
 const EditPost = () => {
+  useTitle("Edit Post");
   const { id } = useParams();
   const { data: post, isPending } = useGetPostById(id || "");
 

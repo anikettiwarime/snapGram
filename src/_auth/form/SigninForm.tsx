@@ -22,8 +22,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/shared";
+import { useTitle } from "@/hooks/useTitle";
 
 const SignInForm = () => {
+  useTitle("Sign In");
   // Hooks and Contexts
   const { toast } = useToast();
   const navigate = useNavigate();

@@ -1,6 +1,7 @@
 import { Loader } from "@/components/shared";
 import PostCard from "@/components/shared/PostCard";
 import UserCard from "@/components/shared/UserCard";
+import { useTitle } from "@/hooks/useTitle";
 import {
   useGetRecentPosts,
   useGetUsers,
@@ -8,6 +9,8 @@ import {
 import { Models } from "appwrite";
 
 const Home = () => {
+  useTitle("Home");
+
   const {
     data: posts,
     isLoading: isPostLoading,
