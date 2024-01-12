@@ -463,6 +463,7 @@ const getCurrentUser = async () => {
     return currentUser.documents[0];
   } catch (error) {
     console.log(error);
+    localStorage.removeItem("cookieFallback");
     throw new Error("Failed to fetch current user");
   }
 };
